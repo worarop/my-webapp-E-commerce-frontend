@@ -11,6 +11,7 @@ interface CartSidebarProps {
   onUpdateQuantity: (productId: string, quantity: number) => void;
   onRemove: (productId: string) => void;
   onCheckout: (items: { productId: string; quantity: number }[], paymentInfo: any) => void;
+  onOpenAuthModal: () => void;
 }
 
 export function CartSidebar({
@@ -21,12 +22,22 @@ export function CartSidebar({
   currentUser,
   onUpdateQuantity,
   onRemove,
-  onCheckout
+  onCheckout,
+  onOpenAuthModal
 }: CartSidebarProps) {
   const [cardHolder, setCardHolder] = useState(currentUser?.name || '');
   const [cardNumber, setCardNumber] = useState('4242 4242 4242 4242');
   const [simulateFailure, setSimulateFailure] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Sync cardHolder with logged-in user name
+  React.useEffect(() => {
+    if (currentUser) {
+      setCardHolder(currentUser.name);
+    } else {
+      setCardHolder('');
+    }
+  }, [currentUser]);
 
   if (!isOpen) return null;
 
@@ -47,7 +58,12 @@ export function CartSidebar({
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cart.length === 0) return;
-    if (!currentUser) return;
+    
+    if (!currentUser) {
+      alert('Please log in to proceed with checkout.');
+      onOpenAuthModal();
+      return;
+    }
 
     if (currentUser.balance < total) {
       alert(`Insufficient account balance! Your balance: $${currentUser.balance.toFixed(2)}, Order total: $${total.toFixed(2)}. Click the '+ $200' button in the top navbar to deposit funds.`);

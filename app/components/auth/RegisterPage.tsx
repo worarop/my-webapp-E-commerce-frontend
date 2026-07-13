@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, UserPlus, Mail, Lock, User, AlertCircle, Loader2, ShoppingCart, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, Mail, Lock, User, AlertCircle, Loader2, ShoppingCart, CheckCircle2, X } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 interface RegisterPageProps {
   onSwitchToLogin: () => void;
+  isModal?: boolean;
+  onClose?: () => void;
 }
 
-export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
+export function RegisterPage({ onSwitchToLogin, isModal, onClose }: RegisterPageProps) {
   const { register, registerState } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -51,207 +53,225 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
     }
   };
 
+  const cardContent = (
+    <div className={`auth-card auth-card-wide relative ${isModal ? '!bg-transparent border-0 shadow-none !p-4 !max-w-full' : ''}`}>
+      {isModal && onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-2 top-2 p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-gray-900/50 transition-colors"
+          aria-label="Close modal"
+        >
+          <X size={18} />
+        </button>
+      )}
+
+      {/* Logo */}
+      <div className="auth-logo">
+        <div className="auth-logo-icon">
+          <ShoppingCart size={24} />
+        </div>
+        <div>
+          <h1 className="auth-logo-title">AeroCart</h1>
+          <p className="auth-logo-sub">Microservices Demo</p>
+        </div>
+      </div>
+
+      {/* Heading */}
+      <div className="auth-heading">
+        <h2 className="auth-title">สร้างบัญชีใหม่ ✨</h2>
+        <p className="auth-subtitle">เริ่มต้นใช้งานระบบ E-Commerce ของเรา</p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="auth-form">
+        {/* Full Name */}
+        <div className="auth-field">
+          <label className="auth-label" htmlFor="reg-name">ชื่อ-นามสกุล</label>
+          <div className="auth-input-wrapper">
+            <User className="auth-input-icon" size={16} />
+            <input
+              id="reg-name"
+              type="text"
+              required
+              placeholder="เช่น สมชาย ใจดี"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="auth-input"
+            />
+          </div>
+        </div>
+
+        {/* Email */}
+        <div className="auth-field">
+          <label className="auth-label" htmlFor="reg-email">อีเมล</label>
+          <div className="auth-input-wrapper">
+            <Mail className="auth-input-icon" size={16} />
+            <input
+              id="reg-email"
+              type="email"
+              required
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="auth-input"
+            />
+          </div>
+        </div>
+
+        {/* Password */}
+        <div className="auth-field">
+          <label className="auth-label" htmlFor="reg-password">รหัสผ่าน</label>
+          <div className="auth-input-wrapper">
+            <Lock className="auth-input-icon" size={16} />
+            <input
+              id="reg-password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              placeholder="อย่างน้อย 6 ตัวอักษร"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="auth-input auth-input-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="auth-toggle-pw"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+            </button>
+          </div>
+          {/* Password strength indicator */}
+          {password.length > 0 && (
+            <div className="strength-bar-wrapper">
+              <div className="strength-bars">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div
+                    key={i}
+                    className={`strength-bar ${passwordStrength >= i ? strengthClass : ''}`}
+                  />
+                ))}
+              </div>
+              <span className={`strength-label ${strengthClass}`}>{strengthLabel}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Confirm Password */}
+        <div className="auth-field">
+          <label className="auth-label" htmlFor="reg-confirm">ยืนยันรหัสผ่าน</label>
+          <div className="auth-input-wrapper">
+            <Lock className="auth-input-icon" size={16} />
+            <input
+              id="reg-confirm"
+              type={showPassword ? 'text' : 'password'}
+              required
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="auth-input"
+            />
+            {confirmPassword && (
+              <div className={`auth-match-icon ${confirmPassword === password ? 'text-emerald-400' : 'text-red-400'}`}>
+                <CheckCircle2 size={15} />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Role Selection */}
+        <div className="auth-field">
+          <label className="auth-label">บทบาทในระบบ</label>
+          <div className="role-selector">
+            <label className={`role-option ${role === 'customer' ? 'role-option-active role-customer' : ''}`}>
+              <input
+                type="radio"
+                name="role"
+                value="customer"
+                checked={role === 'customer'}
+                onChange={() => setRole('customer')}
+                className="sr-only"
+              />
+              <span className="role-icon">🛒</span>
+              <div>
+                <p className="role-name">Customer</p>
+                <p className="role-desc">ซื้อสินค้า & จัดการคำสั่งซื้อ</p>
+              </div>
+            </label>
+            <label className={`role-option ${role === 'admin' ? 'role-option-active role-admin' : ''}`}>
+              <input
+                type="radio"
+                name="role"
+                value="admin"
+                checked={role === 'admin'}
+                onChange={() => setRole('admin')}
+                className="sr-only"
+              />
+              <span className="role-icon">⚙️</span>
+              <div>
+                <p className="role-name">Administrator</p>
+                <p className="role-desc">จัดการสินค้า & ระบบหลัง</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* Error */}
+        {errorMsg && (
+          <div className="auth-error">
+            <AlertCircle size={14} />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="auth-submit-btn auth-submit-btn-register"
+          id="register-submit-btn"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 size={16} className="auth-spinner" />
+              กำลังสมัครสมาชิก...
+            </>
+          ) : (
+            <>
+              <UserPlus size={16} />
+              สมัครสมาชิก
+            </>
+          )}
+        </button>
+      </form>
+
+      {/* Switch to login */}
+      <p className="auth-switch">
+        มีบัญชีอยู่แล้ว?{' '}
+        <button
+          type="button"
+          onClick={onSwitchToLogin}
+          className="auth-switch-link"
+          id="switch-to-login-btn"
+        >
+          เข้าสู่ระบบที่นี่
+        </button>
+      </p>
+    </div>
+  );
+
+  if (isModal) {
+    return cardContent;
+  }
+
   return (
     <div className="auth-page">
       {/* Background decorations */}
       <div className="auth-bg-orb auth-bg-orb-1" />
       <div className="auth-bg-orb auth-bg-orb-2" />
       <div className="auth-bg-orb auth-bg-orb-3" />
-
-      <div className="auth-card auth-card-wide">
-        {/* Logo */}
-        <div className="auth-logo">
-          <div className="auth-logo-icon">
-            <ShoppingCart size={24} />
-          </div>
-          <div>
-            <h1 className="auth-logo-title">AeroCart</h1>
-            <p className="auth-logo-sub">Microservices Demo</p>
-          </div>
-        </div>
-
-        {/* Heading */}
-        <div className="auth-heading">
-          <h2 className="auth-title">สร้างบัญชีใหม่ ✨</h2>
-          <p className="auth-subtitle">เริ่มต้นใช้งานระบบ E-Commerce ของเรา</p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="auth-form">
-          {/* Full Name */}
-          <div className="auth-field">
-            <label className="auth-label" htmlFor="reg-name">ชื่อ-นามสกุล</label>
-            <div className="auth-input-wrapper">
-              <User className="auth-input-icon" size={16} />
-              <input
-                id="reg-name"
-                type="text"
-                required
-                placeholder="เช่น สมชาย ใจดี"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="auth-input"
-              />
-            </div>
-          </div>
-
-          {/* Email */}
-          <div className="auth-field">
-            <label className="auth-label" htmlFor="reg-email">อีเมล</label>
-            <div className="auth-input-wrapper">
-              <Mail className="auth-input-icon" size={16} />
-              <input
-                id="reg-email"
-                type="email"
-                required
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="auth-input"
-              />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div className="auth-field">
-            <label className="auth-label" htmlFor="reg-password">รหัสผ่าน</label>
-            <div className="auth-input-wrapper">
-              <Lock className="auth-input-icon" size={16} />
-              <input
-                id="reg-password"
-                type={showPassword ? 'text' : 'password'}
-                required
-                placeholder="อย่างน้อย 6 ตัวอักษร"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="auth-input auth-input-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="auth-toggle-pw"
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
-            </div>
-            {/* Password strength indicator */}
-            {password.length > 0 && (
-              <div className="strength-bar-wrapper">
-                <div className="strength-bars">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div
-                      key={i}
-                      className={`strength-bar ${passwordStrength >= i ? strengthClass : ''}`}
-                    />
-                  ))}
-                </div>
-                <span className={`strength-label ${strengthClass}`}>{strengthLabel}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Confirm Password */}
-          <div className="auth-field">
-            <label className="auth-label" htmlFor="reg-confirm">ยืนยันรหัสผ่าน</label>
-            <div className="auth-input-wrapper">
-              <Lock className="auth-input-icon" size={16} />
-              <input
-                id="reg-confirm"
-                type={showPassword ? 'text' : 'password'}
-                required
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="auth-input"
-              />
-              {confirmPassword && (
-                <div className={`auth-match-icon ${confirmPassword === password ? 'text-emerald-400' : 'text-red-400'}`}>
-                  <CheckCircle2 size={15} />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Role Selection */}
-          <div className="auth-field">
-            <label className="auth-label">บทบาทในระบบ</label>
-            <div className="role-selector">
-              <label className={`role-option ${role === 'customer' ? 'role-option-active role-customer' : ''}`}>
-                <input
-                  type="radio"
-                  name="role"
-                  value="customer"
-                  checked={role === 'customer'}
-                  onChange={() => setRole('customer')}
-                  className="sr-only"
-                />
-                <span className="role-icon">🛒</span>
-                <div>
-                  <p className="role-name">Customer</p>
-                  <p className="role-desc">ซื้อสินค้า & จัดการคำสั่งซื้อ</p>
-                </div>
-              </label>
-              <label className={`role-option ${role === 'admin' ? 'role-option-active role-admin' : ''}`}>
-                <input
-                  type="radio"
-                  name="role"
-                  value="admin"
-                  checked={role === 'admin'}
-                  onChange={() => setRole('admin')}
-                  className="sr-only"
-                />
-                <span className="role-icon">⚙️</span>
-                <div>
-                  <p className="role-name">Administrator</p>
-                  <p className="role-desc">จัดการสินค้า & ระบบหลัง</p>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          {/* Error */}
-          {errorMsg && (
-            <div className="auth-error">
-              <AlertCircle size={14} />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="auth-submit-btn auth-submit-btn-register"
-            id="register-submit-btn"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 size={16} className="auth-spinner" />
-                กำลังสมัครสมาชิก...
-              </>
-            ) : (
-              <>
-                <UserPlus size={16} />
-                สมัครสมาชิก
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* Switch to login */}
-        <p className="auth-switch">
-          มีบัญชีอยู่แล้ว?{' '}
-          <button
-            type="button"
-            onClick={onSwitchToLogin}
-            className="auth-switch-link"
-            id="switch-to-login-btn"
-          >
-            เข้าสู่ระบบที่นี่
-          </button>
-        </p>
-      </div>
+      {cardContent}
     </div>
   );
 }

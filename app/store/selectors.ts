@@ -17,8 +17,8 @@ export const selectCurrentUserId = (state: RootState) => selectAuthUser(state as
 export const selectCurrentUserCart = createSelector(
   [selectCarts, selectCurrentUserId],
   (carts, userId) => {
-    if (!userId) return [];
-    return carts[userId] ?? [];
+    const activeId = userId || 'guest';
+    return carts[activeId] ?? [];
   }
 );
 

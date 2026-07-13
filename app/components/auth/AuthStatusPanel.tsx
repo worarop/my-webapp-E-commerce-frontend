@@ -42,15 +42,17 @@ export function AuthStatusPanel() {
       <div className="auth-status-header" onClick={() => setExpanded(!expanded)}>
         <div className="auth-status-user">
           <div className="auth-status-avatar">
-            {user?.name?.[0]?.toUpperCase() || '?'}
+            {user?.name?.[0]?.toUpperCase() || 'G'}
           </div>
           <div>
-            <p className="auth-status-name">{user?.name || 'Unknown'}</p>
-            <p className="auth-status-email">{user?.email || '—'}</p>
+            <p className="auth-status-name">{user?.name || 'Guest User'}</p>
+            <p className="auth-status-email">{user?.email || 'Not logged in'}</p>
           </div>
-          <span className={`auth-status-role ${user?.role === 'admin' ? 'role-badge-admin' : 'role-badge-customer'}`}>
-            {user?.role}
-          </span>
+          {user && (
+            <span className={`auth-status-role ${user?.role === 'admin' ? 'role-badge-admin' : 'role-badge-customer'}`}>
+              {user?.role}
+            </span>
+          )}
         </div>
         <button className="auth-status-toggle">
           {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}

@@ -14,6 +14,7 @@ interface NavbarProps {
   onRegister: (name: string, email: string, role: 'admin' | 'customer') => void;
   onLogout: () => void;
   onDeposit: (amount: number) => void;
+  onOpenAuthModal: () => void;
 }
 
 export function Navbar({
@@ -27,7 +28,8 @@ export function Navbar({
   onLogin,
   onRegister,
   onLogout,
-  onDeposit
+  onDeposit,
+  onOpenAuthModal
 }: NavbarProps) {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showRegModal, setShowRegModal] = useState(false);
@@ -148,76 +150,43 @@ export function Navbar({
               </div>
             ) : (
               <button
-                onClick={() => setShowUserDropdown(!showUserDropdown)}
+                onClick={onOpenAuthModal}
                 className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 transition-all shadow-md shadow-indigo-600/15"
               >
                 <UserIcon className="h-4 w-4" />
-                Login / Switch User
+                Login / Register
               </button>
             )}
 
             {/* Dropdown Menu */}
-            {showUserDropdown && (
+            {showUserDropdown && currentUser && (
               <div className="absolute right-0 mt-2 w-64 origin-top-right rounded-xl border border-gray-800 bg-gray-950 p-2 shadow-2xl ring-1 ring-black/5 animate-in fade-in slide-in-from-top-2 duration-150">
                 <div className="px-3 py-2 border-b border-gray-900">
-                  <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Switch Account Context</p>
+                  <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Account Settings</p>
                 </div>
-                <div className="py-1 max-h-48 overflow-y-auto">
-                  {users.map((u) => (
-                    <button
-                      key={u.id}
-                      onClick={() => {
-                        onLogin(u.email);
-                        setShowUserDropdown(false);
-                      }}
-                      className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                        currentUser?.id === u.id
-                          ? 'bg-indigo-600/10 text-indigo-400 font-semibold'
-                          : 'text-gray-400 hover:bg-gray-900 hover:text-white'
-                      }`}
-                    >
-                      <div>
-                        <p className="font-medium text-xs text-white">{u.name}</p>
-                        <p className="text-[11px] text-gray-500 truncate">{u.email}</p>
-                      </div>
-                      <span className={`text-[9px] px-1 rounded uppercase font-semibold ${
-                        u.role === 'admin' ? 'bg-red-500/10 text-red-400' : 'bg-indigo-500/10 text-indigo-400'
-                      }`}>
-                        {u.role}
-                      </span>
-                    </button>
-                  ))}
+                <div className="py-1">
+                  <div className="px-3 py-2 text-xs text-gray-400">
+                    Logged in as <strong className="text-white">{currentUser.name}</strong>
+                  </div>
                 </div>
                 <div className="border-t border-gray-900 mt-1 pt-1">
                   <button
                     onClick={() => {
-                      setShowRegModal(true);
+                      onLogout();
                       setShowUserDropdown(false);
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-indigo-400 hover:bg-indigo-950/40 hover:text-indigo-300 transition-colors"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-red-400 hover:bg-red-950/40 hover:text-red-300 transition-colors"
                   >
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    Register New Account
+                    <LogOut className="h-3.5 w-3.5" />
+                    Sign Out
                   </button>
-                  {currentUser && (
-                    <button
-                      onClick={() => {
-                        onLogout();
-                        setShowUserDropdown(false);
-                      }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-red-400 hover:bg-red-950/40 hover:text-red-300 transition-colors"
-                    >
-                      <LogOut className="h-3.5 w-3.5" />
-                      Sign Out
-                    </button>
-                  )}
                 </div>
               </div>
             )}
           </div>
 
           {/* Cart Icon & Badge */}
-          {currentUser && activeTab !== 'admin' && (
+          {activeTab !== 'admin' && (
             <button
               onClick={onOpenCart}
               className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-gray-800 bg-gray-900/30 text-gray-400 hover:border-gray-700 hover:bg-gray-900 hover:text-white transition-all"

@@ -9,6 +9,7 @@ import { CartSidebar } from '../components/CartSidebar';
 import { OrderHistory } from '../components/OrderHistory';
 import { AdminDashboard } from '../components/AdminDashboard';
 import { AuthStatusPanel } from '../components/auth/AuthStatusPanel';
+import { AuthModal } from '../components/auth/AuthModal';
 import { Search, Sparkles, Cpu, Layers, ShieldCheck, RefreshCw } from 'lucide-react';
 import type { Product } from '../types';
 
@@ -53,6 +54,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Guard: ถ้า activeTab = 'admin' แต่ไม่ใช่ admin → reset กลับ 'store'
   const safeSetActiveTab = (tab: 'store' | 'orders' | 'admin') => {
@@ -90,6 +92,7 @@ export default function Home() {
         onRegister={() => {}}
         onLogout={logout}
         onDeposit={depositBalance}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
       {/* Main Content Body */}
@@ -259,6 +262,12 @@ export default function Home() {
         onUpdateQuantity={updateCartQuantity}
         onRemove={removeFromCart}
         onCheckout={createOrder}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+      />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
 
     </div>

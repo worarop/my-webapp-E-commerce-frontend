@@ -56,10 +56,7 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      {/* AuthGate ห่อ Outlet ทั้งหมด — แสดง Login/Register ถ้ายังไม่ได้ login */}
-      <AuthGate>
-        <Outlet />
-      </AuthGate>
+      <Outlet />
     </Provider>
   );
 }

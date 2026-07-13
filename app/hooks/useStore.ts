@@ -105,7 +105,7 @@ export function useStore() {
 
     // Cart Service
     addToCart: (productId: string, quantity: number = 1) => {
-      if (!currentUser) throw new Error('Please login first');
+      const userId = currentUser?.id || 'guest';
       const product = products.find(p => p.id === productId);
       if (!product) {
         throw new Error(`Product ${productId} not found`);
@@ -123,7 +123,7 @@ export function useStore() {
         throw new Error(`Insufficient stock. Only ${product.stock} units available.`);
       }
 
-      dispatch(addToCartAction({ userId: currentUser.id, productId, quantity }));
+      dispatch(addToCartAction({ userId, productId, quantity }));
       dispatch(addLog({
         type: 'info',
         service: 'cart',
@@ -132,12 +132,12 @@ export function useStore() {
     },
 
     updateCartQuantity: (productId: string, quantity: number) => {
-      if (!currentUser) return;
+      const userId = currentUser?.id || 'guest';
       const product = products.find(p => p.id === productId);
       if (!product) return;
 
       if (quantity <= 0) {
-        dispatch(removeFromCartAction({ userId: currentUser.id, productId }));
+        dispatch(removeFromCartAction({ userId, productId }));
         dispatch(addLog({
           type: 'info',
           service: 'cart',
@@ -155,7 +155,7 @@ export function useStore() {
         throw new Error(`Insufficient stock. Only ${product.stock} units available.`);
       }
 
-      dispatch(updateCartQuantityAction({ userId: currentUser.id, productId, quantity }));
+      dispatch(updateCartQuantityAction({ userId, productId, quantity }));
       dispatch(addLog({
         type: 'info',
         service: 'cart',
@@ -164,9 +164,9 @@ export function useStore() {
     },
 
     removeFromCart: (productId: string) => {
-      if (!currentUser) return;
+      const userId = currentUser?.id || 'guest';
       const product = products.find(p => p.id === productId);
-      dispatch(removeFromCartAction({ userId: currentUser.id, productId }));
+      dispatch(removeFromCartAction({ userId, productId }));
       dispatch(addLog({
         type: 'info',
         service: 'cart',
@@ -175,12 +175,12 @@ export function useStore() {
     },
 
     clearCart: () => {
-      if (!currentUser) return;
-      dispatch(clearCartAction(currentUser.id));
+      const userId = currentUser?.id || 'guest';
+      dispatch(clearCartAction(userId));
       dispatch(addLog({
         type: 'info',
         service: 'cart',
-        message: `Cleared cart for user ${currentUser.name}`
+        message: `Cleared cart for user ${currentUser?.name || 'guest'}`
       }));
     },
 

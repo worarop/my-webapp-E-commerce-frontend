@@ -27,10 +27,6 @@ export function ProductModal({
   const isLowStock = product.stock > 0 && product.stock <= 5;
 
   const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      alert('Please select or log in to a user account first (top right button).');
-      return;
-    }
     try {
       onAddToCart(product.id, quantity);
       onClose();

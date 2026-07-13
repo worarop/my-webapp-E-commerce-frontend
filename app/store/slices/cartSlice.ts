@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { CartItem } from '../../types';
+import { authApi } from '../../services/authApi';
 
 interface CartState {
   carts: Record<string, CartItem[]>;
@@ -55,6 +56,36 @@ export const cartSlice = createSlice({
     clearCart: (state, action: PayloadAction<string>) => {
       state.carts[action.payload] = [];
     }
+  },
+  extraReducers: (builder) => {
+    // Merge guest cart items into the user's cart on login or register success
+    const mergeCart = (state: CartState, action: any) => {
+      const userId = action.payload?.user?.id;
+      if (!userId) return;
+      
+      const guestCart = state.carts['guest'] || [];
+      if (guestCart.length === 0) return;
+
+      if (!state.carts[userId]) {
+        state.carts[userId] = [];
+      }
+
+      for (const guestItem of guestCart) {
+        const existing = state.carts[userId].find(item => item.productId === guestItem.productId);
+        if (existing) {
+          existing.quantity += guestItem.quantity;
+        } else {
+          state.carts[userId].push({ ...guestItem });
+        }
+      }
+      
+      // Clear the guest cart after merge
+      state.carts['guest'] = [];
+    };
+
+    builder
+      .addMatcher(authApi.endpoints.login.matchFulfilled, mergeCart)
+      .addMatcher(authApi.endpoints.register.matchFulfilled, mergeCart);
   }
 });
 

@@ -20,10 +20,6 @@ export function ProductCard({
 
   const handleCartClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isAuthenticated) {
-      alert('Please select or log in to a user account first (top right button).');
-      return;
-    }
     try {
       onAddToCart(product.id);
     } catch (err: any) {
